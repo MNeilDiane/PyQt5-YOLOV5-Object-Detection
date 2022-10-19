@@ -38,7 +38,7 @@ class Main():
         self.text_queue = queue.Queue()
         parser = argparse.ArgumentParser()
         parser.add_argument('--weights', nargs='+', type=str,
-                            default='weights/best.pt', help='model.pt path(s)')
+                            default='yolov5s.pt', help='model.pt path(s)')
         # file/folder, 0 for webcam
         parser.add_argument('--source', type=str,
                             default='data/images', help='source')
@@ -675,14 +675,17 @@ class Main():
                                             img.shape[2:], det[:, :4], showimg.shape).round()
                                         # Write results
                                         for *xyxy, conf, cls in reversed(det):
-                                            label = '%s %.2f' % (self.names[int(cls)], conf)
-                                            self.r.hset("REAR", "LEFT INFO", str(label))
-                                            self.text_queue.put(str(label) + ' ')
-                                            name_list.append(self.names[int(cls)])
-                                            print(label)
-                                            plot_one_box(
-                                                xyxy, showimg, label=label, color=self.colors[int(cls)],
-                                                line_thickness=2, name=self.names[int(cls)])
+                                            if self.names[int(cls)] == 'person' or self.names[int(cls)] == 'car' \
+                                                    or self.names[int(cls)] == 'truck':
+                                                label = '%s %.2f' % (self.names[int(cls)], conf)
+                                                self.r.hset("REAR", "LEFT INFO", str(label))
+                                                self.text_queue.put(str(label) + ' ')
+                                                name_list.append(self.names[int(cls)])
+                                                print(label)
+                                                plot_one_box(
+                                                    xyxy, showimg, label=label, color=self.colors[int(cls)],
+                                                    line_thickness=2, name=self.names[int(cls)])
+
                                 self.text_queue.put('\n')
                             fps = (fps + (1. / (time.time() - t1))) / 2
                             self.order = self.r.hget("Communication", "Order")
@@ -813,14 +816,17 @@ class Main():
 
                                         # Write results
                                         for *xyxy, conf, cls in reversed(det):
-                                            label = '%s %.2f' % (self.names[int(cls)], conf)
-                                            self.r.hset("REAR", "RIGHT INFO", str(label))
-                                            self.text_queue.put(str(label) + ' ')
-                                            name_list.append(self.names[int(cls)])
-                                            print(label)
-                                            plot_one_box(
-                                                xyxy, showimg, label=label, color=self.colors[int(cls)],
-                                                line_thickness=2, name=self.names[int(cls)])
+                                            if self.names[int(cls)]=='person' or self.names[int(cls)]=='car' \
+                                                    or self.names[int(cls)]=='truck':
+                                                label = '%s %.2f' % (self.names[int(cls)], conf)
+                                                self.r.hset("REAR", "RIGHT INFO", str(label))
+                                                self.text_queue.put(str(label) + ' ')
+                                                name_list.append(self.names[int(cls)])
+                                                print(label)
+                                                plot_one_box(
+                                                    xyxy, showimg, label=label, color=self.colors[int(cls)],
+                                                    line_thickness=2, name=self.names[int(cls)])
+
 
                                 self.text_queue.put('\n')
                                 fps = (fps + (1. / (time.time() - t1))) / 2
